@@ -1,15 +1,19 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
-
-/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { PrismaClient } from '../../generated/prisma';
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
+  public readonly client: PrismaClient;
+
+  constructor() {
+    this.client = new PrismaClient();
+  }
+
   async onModuleInit(): Promise<void> {
-    await this.$connect();
+    await this.client.$connect();
   }
 
   async onModuleDestroy(): Promise<void> {
-    await this.$disconnect();
+    await this.client.$disconnect();
   }
 }

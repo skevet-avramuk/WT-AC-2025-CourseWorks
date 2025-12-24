@@ -6,6 +6,8 @@ import { UsersService } from '../users/users.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { User } from '../../generated/prisma';
+import { Role } from '../common/enums/role.enum';
+import { mapRoleToPrisma, mapRoleFromPrisma } from '../common/mappers/role.mapper';
 
 @Injectable()
 export class AuthService {
@@ -36,7 +38,7 @@ export class AuthService {
       email,
       username,
       passwordHash,
-      role: 'user',
+      role: mapRoleToPrisma(Role.USER),
     });
 
     return {
@@ -78,7 +80,7 @@ export class AuthService {
   private generateToken(user: User): string {
     const payload = {
       sub: user.id,
-      role: user.role,
+      role: mapRoleFromPrisma(user.role),
     };
 
     return this.jwtService.sign(payload);
