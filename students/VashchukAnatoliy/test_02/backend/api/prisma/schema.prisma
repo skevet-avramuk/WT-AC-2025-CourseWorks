@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum ReportStatus {
+  open
+  reviewed
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         UserRole @default(user)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  posts        Post[]   @relation("UserPosts")
+  likes        Like[]
+  reports      Report[] @relation("UserReports")
+  following    Follow[] @relation("UserFollowing")
+  followers    Follow[] @relation("UserFollowers")
+
+  @@map("users")
+}
+
+model Post {
+  id              String    @id @default(uuid())
+  text            String
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime? @updatedAt @map("updated_at")
+
+  authorId        String    @map("author_id")
+  author          User      @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+
+  replyToPostId   String?   @map("reply_to_post_id")
+  replyToPost     Post?     @relation("PostReplies", fields: [replyToPostId], references: [id], onDelete: Cascade)
+  replies         Post[]    @relation("PostReplies")
+
+  likes           Like[]
+  reports         Report[]
+
+  @@index([authorId, createdAt])
+  @@index([createdAt])
+  @@map("posts")
+}
+
+model Follow {
+  id         String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  followerId String   @map("follower_id")
+  targetId   String   @map("target_id")
+
+  follower   User     @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  target     User     @relation("UserFollowers", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, targetId])
+  @@map("follows")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("likes")
+}
+
+model Report {
+  id         String        @id @default(uuid())
+  reason     String
+  status     ReportStatus @default(open)
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  postId     String        @map("post_id")
+  reportedBy String        @map("reported_by")
+
+  post       Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporter   User          @relation("UserReports", fields: [reportedBy], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@map("reports")
+}
