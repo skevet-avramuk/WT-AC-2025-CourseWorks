@@ -1,9 +1,12 @@
+// src/common/decorators/current-user.decorator.ts
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtUser } from '../../auth/types/jwt-user.type';
 
 export const CurrentUser = createParamDecorator(
-  (_data: unknown, ctx: ExecutionContext): JwtUser => {
+  (field: keyof JwtUser | undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<{ user: JwtUser }>();
-    return request.user;
+    const user = request.user;
+
+    return field ? user[field] : user;
   },
 );

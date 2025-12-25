@@ -24,6 +24,12 @@ enum ReportStatus {
   reviewed
 }
 
+enum PostStatus {
+  active
+  hidden
+  archived
+}
+
 model User {
   id           String   @id @default(uuid())
   username     String   @unique
@@ -42,23 +48,29 @@ model User {
 }
 
 model Post {
-  id              String    @id @default(uuid())
+  id              String      @id @default(uuid())
   text            String
-  createdAt       DateTime  @default(now()) @map("created_at")
-  updatedAt       DateTime? @updatedAt @map("updated_at")
 
-  authorId        String    @map("author_id")
-  author          User      @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  status          PostStatus  @default(active)
+  isHidden        Boolean     @default(false) @map("is_hidden")
+  deletedAt       DateTime?   @map("deleted_at")
 
-  replyToPostId   String?   @map("reply_to_post_id")
-  replyToPost     Post?     @relation("PostReplies", fields: [replyToPostId], references: [id], onDelete: Cascade)
-  replies         Post[]    @relation("PostReplies")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  authorId        String      @map("author_id")
+  author          User        @relation("UserPosts", fields: [authorId], references: [id], onDelete: Cascade)
+
+  replyToPostId   String?     @map("reply_to_post_id")
+  replyToPost     Post?       @relation("PostReplies", fields: [replyToPostId], references: [id], onDelete: Cascade)
+  replies         Post[]      @relation("PostReplies")
 
   likes           Like[]
   reports         Report[]
 
   @@index([authorId, createdAt])
   @@index([createdAt])
+  @@index([status])
   @@map("posts")
 }
 

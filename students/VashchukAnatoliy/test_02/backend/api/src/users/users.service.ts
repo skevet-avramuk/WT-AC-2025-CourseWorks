@@ -7,19 +7,19 @@ export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.client.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { email },
     });
   }
 
   async findById(id: string): Promise<User | null> {
-    return this.prisma.client.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { id },
     });
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
-    return this.prisma.client.user.create({
+    return await this.prisma.user.create({
       data,
     });
   }
