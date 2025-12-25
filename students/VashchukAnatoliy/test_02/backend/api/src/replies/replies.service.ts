@@ -20,6 +20,9 @@ export class RepliesService {
       where: {
         id: postId,
         deletedAt: null,
+        isHidden: false,
+        status: 'active',
+        replyToPostId: null,
       },
       select: { id: true },
     });
@@ -42,19 +45,35 @@ export class RepliesService {
     });
   }
 
-  async getReplies(postId: string) {
-    return this.prisma.post.findMany({
+  async getReplies(postId: string, cursor?: string, limit = 20) {
+    const replies = await this.prisma.post.findMany({
       where: {
         replyToPostId: postId,
         deletedAt: null,
         isHidden: false,
+        status: 'active',
       },
       include: {
         author: true,
       },
-      orderBy: {
-        createdAt: 'asc',
-      },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      take: limit + 1,
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1,
+      }),
     });
+
+    let nextCursor: string | null = null;
+
+    if (replies.length > limit) {
+      const next = replies.pop();
+      nextCursor = next!.id;
+    }
+
+    return {
+      items: replies,
+      nextCursor,
+    };
   }
 }

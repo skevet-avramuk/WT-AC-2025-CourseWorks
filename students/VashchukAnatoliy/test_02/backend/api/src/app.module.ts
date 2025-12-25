@@ -7,6 +7,7 @@ import { PostsModule } from './posts/posts.module';
 import { RepliesModule } from './replies/replies.module';
 import { FollowsModule } from './follows/follows.module'; // ✅ ДОБАВИЛИ
 import { PrismaModule } from './prisma/prisma.module';
+import { LikesModule } from './likes/likes.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { PrismaModule } from './prisma/prisma.module';
     UsersModule,
     PostsModule,
     RepliesModule,
-    FollowsModule, // ✅ ПОДКЛЮЧИЛИ ПОДПИСКИ
+    FollowsModule,
+    LikesModule,
   ],
 })
 export class AppModule {}

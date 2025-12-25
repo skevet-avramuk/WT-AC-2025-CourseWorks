@@ -63,6 +63,10 @@ export class PostsService {
       },
       include: {
         author: true,
+        likes: {
+          where: { userId },
+          select: { id: true },
+        },
         _count: {
           select: {
             likes: true,
@@ -85,8 +89,14 @@ export class PostsService {
       nextCursor = nextItem!.id;
     }
 
+    const items = posts.map((post) => ({
+      ...post,
+      isLikedByMe: post.likes.length > 0,
+      likes: undefined,
+    }));
+
     return {
-      items: posts,
+      items,
       nextCursor,
     };
   }

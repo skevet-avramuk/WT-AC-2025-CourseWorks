@@ -47,6 +47,10 @@ export class FollowsService {
   // UNFOLLOW
   // =====================
   async unfollowUser(currentUserId: string, targetUserId: string) {
+    if (currentUserId === targetUserId) {
+      throw new BadRequestException('Нельзя отписаться от себя');
+    }
+
     const follow = await this.prisma.follow.findUnique({
       where: {
         followerId_targetId: {
