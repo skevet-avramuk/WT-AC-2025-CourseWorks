@@ -1,10 +1,12 @@
-// src/follows/follows.controller.ts
 import { Controller, Post, Delete, Param, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { PermissionsGuard } from '../common/guards/permissions.guard';
+import { RequireActions } from '../common/decorators/require-actions.decorator';
+import { Action } from '../common/enums/action.enum';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { FollowsService } from './follows.service';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
 @Controller('follows')
 export class FollowsController {
   constructor(private readonly followsService: FollowsService) {}
@@ -13,15 +15,17 @@ export class FollowsController {
   // FOLLOW
   // =====================
   @Post(':userId')
-  follow(@Param('userId') targetUserId: string, @CurrentUser() user: { id: string }) {
-    return this.followsService.followUser(user.id, targetUserId);
+  @RequireActions(Action.FOLLOW)
+  follow(@Param('userId') targetUserId: string, @CurrentUser('id') userId: string) {
+    return this.followsService.followUser(userId, targetUserId);
   }
 
   // =====================
   // UNFOLLOW
   // =====================
   @Delete(':userId')
-  unfollow(@Param('userId') targetUserId: string, @CurrentUser() user: { id: string }) {
-    return this.followsService.unfollowUser(user.id, targetUserId);
+  @RequireActions(Action.UNFOLLOW)
+  unfollow(@Param('userId') targetUserId: string, @CurrentUser('id') userId: string) {
+    return this.followsService.unfollowUser(userId, targetUserId);
   }
 }

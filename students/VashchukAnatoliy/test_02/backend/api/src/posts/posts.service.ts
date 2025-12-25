@@ -43,4 +43,51 @@ export class PostsService {
       },
     });
   }
+  // src/posts/posts.service.ts
+
+  async getFeed(userId: string, cursor?: string, limit = 20) {
+    const follows = await this.prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { targetId: true },
+    });
+
+    const authorIds = [userId, ...follows.map((f) => f.targetId)];
+
+    const posts = await this.prisma.post.findMany({
+      where: {
+        authorId: { in: authorIds },
+        replyToPostId: null,
+        deletedAt: null,
+        isHidden: false,
+        status: 'active',
+      },
+      include: {
+        author: true,
+        _count: {
+          select: {
+            likes: true,
+            replies: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: limit + 1,
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1,
+      }),
+    });
+
+    let nextCursor: string | null = null;
+
+    if (posts.length > limit) {
+      const nextItem = posts.pop();
+      nextCursor = nextItem!.id;
+    }
+
+    return {
+      items: posts,
+      nextCursor,
+    };
+  }
 }
