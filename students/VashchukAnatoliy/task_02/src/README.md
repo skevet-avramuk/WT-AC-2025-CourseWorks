@@ -413,6 +413,7 @@ kubectl logs -n micro-twitter -l app=backend --tail=100 -f
 ### 1. **Модульная архитектура**
 
 Каждый модуль backend имеет четкую ответственность:
+
 ```
 module/
 ├── dto/              — Data Transfer Objects (валидация)
@@ -426,6 +427,7 @@ module/
 ### 2. **Dependency Injection**
 
 NestJS использует DI контейнер для управления зависимостями:
+
 ```typescript
 @Injectable()
 export class PostsService {
@@ -463,6 +465,7 @@ export class CreatePostDto {
 ### 6. **Logging**
 
 Структурированные логи через Winston:
+
 ```typescript
 this.logger.log('Post created', { userId, postId });
 ```
@@ -547,6 +550,6 @@ this.logger.log('Post created', { userId, postId });
 - **API Response Time**: < 100ms (p95)
 - **Frontend Load Time**: < 2s (First Contentful Paint)
 - **Database Queries**: < 50ms average
-- **Build Time**: 
+- **Build Time**:
   - Backend: ~45s
   - Frontend: ~30s (production)

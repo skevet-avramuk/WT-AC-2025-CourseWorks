@@ -88,19 +88,22 @@ npm run install:all
 
 ### Настройка базы данных
 
-1. Создайте `.env` файл в `src/apps/server/`:
+- 1.Создайте `.env` файл в `src/apps/server/`:
+
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/micro_twitter"
 JWT_SECRET="your-super-secret-jwt-key-change-in-production"
 PORT=3000
 ```
 
-2. Примените миграции:
+- 2.Примените миграции:
+
 ```bash
 npm run db:migrate
 ```
 
-3. (Опционально) Заполните базу тестовыми данными:
+- 3.(Опционально) Заполните базу тестовыми данными:
+
 ```bash
 npm run db:seed
 ```
