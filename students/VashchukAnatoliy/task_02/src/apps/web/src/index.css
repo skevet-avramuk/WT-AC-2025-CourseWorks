@@ -1,9 +1,9 @@
-@import "tailwindcss";
+@import url("tailwindcss");
 
 @layer base {
   body {
     @apply bg-gray-50 text-gray-900 min-h-screen;
-    
+
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   }
 }
